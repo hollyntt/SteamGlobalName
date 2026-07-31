@@ -21,8 +21,8 @@
     </PropertyGroup>
     
     <PropertyGroup>
-        <AtlyssPath>..\..\..\..\..\..\..\..\..\home\soap\.local\share\Steam\steamapps\common\ATLYSS</AtlyssPath>
-        <AtlyssManaged>$(AtlyssPath)\ATLYSS_Data\Managed\</AtlyssManaged>
+        <AtlyssPath>C:\Program Files (x86)\Steam\steamapps\common\ATLYSS\</AtlyssPath>
+        <AtlyssManaged>$(AtlyssPath)/ATLYSS_Data/Managed/</AtlyssManaged>
     </PropertyGroup>
 
     <ItemGroup>

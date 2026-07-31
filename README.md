@@ -1,64 +1,84 @@
-# ATLYSS Template Mod
+# PModeration
 
-This is a VS 2022 project that can be used as a basis for making BepInEx 5 plugins for ATLYSS.
+**Personal client-side player hiding & blocking for Atlyss**  
+Hide annoying players (oversized models, distracting RP titles, floating names, audio spam) without muting chat or affecting anyone else.
 
-This template is targeted towards publishing mods with Thunderstore, and will generate a ZIP package for it upon building.
+[**Join the Discord Community**](https://discord.gg/ePhX4Fb2we)
 
-# Configuring the project
+### Features
 
-Set the following properties in [Directory.Build.props](./TemplateMod/Directory.Build.props):
-- `AtlyssPath` - **IMPORTANT** - the install path for Atlyss on your machine, used to reference the game assembly
-- `CreateThunderstorePackage` - `true` to generate a Thunderstore package, `false` to skip it; usually you want this set to `true`
-- `ThunderstorePackageName` - the name of the package; used as the `name` field in `manifest.json`, and is part of the generated ZIP name
-- `ThunderstoreTeamName` - the team used for publishing this package; this should match the team that you normally use to upload to Thunderstore, and is part of the generated ZIP name
-  - while not normally required, specifying this correctly allows you to install the mod locally without having to specify the author every time
-- `ThunderstorePackageDescription` - the description for the package; used as the `description` field in `manifest.json`
-- `ThunderstoreWebsite` - a link to a git repository, website, contact page, etc.; used as the `website` field in `manifest.json`
-- `ThunderstoreDependency` - a dependency string for a package from Thunderstore; all `ThunderstoreDependency` items are combined and used as the `dependencies` field in `manifest.json`
-- `ThunderstoreAssemblyInclude` - an assembly to copy over to the generated ZIP package; by default, the generated plugin assembly is included
-  - you should include any third-party or runtime dependencies that don't come from Thunderstore dependencies, or aren't bundled with ATLYSS itself 
+- **Silent local hiding** — Completely removes a player's visuals, nameplate (@global + RPNames title), model, attached effects, and audio locally.  
+- **SteamID-based** — Blocks persist across character swaps, logouts, and re-joins.  
+- **Separate from mute** — Hide visuals while still chatting (perfect for oversized/obstructing characters you still want to talk to).  
+- **Optional chat censor** — Replace blocked players' messages with "------" (or custom text) if you want full silence.  
+- **Easy controls** — In-game commands: `/block <name>`, `/unblock <name-or-ID>`, `/blocklist`, `/blockexport`, `/blockimport`.  
+- **Configurable** — Toggle hard block (full GameObject disable) vs soft block (safer for parties), debug mode, and more via EasySettings UI.  
+- **Public API** — Other mods can check/add/remove blocks or listen to events (`PModeration.PModerationAPI`).  
 
-Also set the following properties in the `.csproj` for the plugin:
-- `AssemblyName` - name of the generated plugin assembly, also used as the GUID of the plugin
-- `Product` - used as the name of the plugin
-- `Version` - used as the version of the plugin and the `version` field in `manifest.json`
+Purely **client-side** — no host involvement, no mutual visibility, no drama. Just personal boundary control.
 
-# Distributing on Thunderstore
+### Installation
 
-You can distribute your mod on Thunderstore by uploading the generated ZIP package.
+1. Install via Thunderstore Mod Manager or manually.  
+2. Requires:  
+   - BepInEx  
+   - Nessie.ATLYSS.EasySettings  
+   - Soggy_Pancake.AtlyssCommandLib  
+   - CodeTalker  
+3. Launch game → configure via Mod Settings menu or edit `BepInEx/config/PModeration.cfg`
 
-Before uploading, double check that the ZIP package contains the correct files (manifest.json, icon.png, README.md, CHANGELOG.md) and has only the strictly necessary assemblies in the "plugins" folder.
+### Commands (all client-side)
 
-# Testing locally using r2modman
+- `/block <name>` — Hide a player  
+- `/unblock <name-or-SteamID>` — Unhide  
+- `/blocklist` — Show blocked IDs  
+- `/blockexport` — Save blocklist to file  
+- `/blockimport <path>` — Load blocklist from file  
+- `/blockhelp` — Shows command lists
+- `/hideglobal <name>` — hides only the @GlobalName text for that player (model, RP title, location, etc. stay visible)
+- `/unhideglobal <name-or-ID>` — shows the @GlobalName again
 
-You can use the "Import local mod" in r2modman options to import your generated ZIP package.
+### Configuration (via Mod Settings or .cfg)
 
-This allows you to test your mod, and check that it will work properly for people who install it from Thunderstore.
+- **Enabled** — Master switch (default: true)  
+- **Hard Block (Advanced)** — Disable entire GameObject (default: false – soft block recommended for party stability)  
+- **Censor Chat** — Replace blocked messages (default: false – Atlyss mute already exists)  
+- **Replacement Text** — What blocked chat shows (default: "[BLOCKED]")  
+- **Debug Mode** — Log actions (default: false)
 
-![](https://i.imgur.com/qAsRVyA.png)
+### Developer API
 
-# Best practices
+Other mods can reference `PModeration.PModerationAPI` for integration:
 
-- Change places that reference the "TemplateMod" name to the actual name of your mod
-  - Rename `TemplateMod.csproj` and the `TemplateMod` folder to the name of your mod
-  - Rename `TemplateMod.sln` to the name of your mod, then open it with Notepad, and change the `TemplateMod/TemplateMod.csproj` path from the `Project()` reference to the updated path for your project
-  - Change variables in `Directory.Build.props` and the `.csproj` that say "TemplateMod" to the name of your mod
-- Describe your mod in the README.md Thunderstore file, and add some form of contact info for people who want to report bugs or give suggestions
-- Increment your `Version` property in the project every time you want to upload an update according to Semantic Versioning rules: https://semver.org/
-- For the plugin GUID (`AssemblyName`) and package name (`ThunderstorePackageName`), it's best to restrict it to the following characters: [A-Za-z0-9_]
-  - Underscores are displayed as spaces in Thunderstore
-- Do not change the `ThunderstorePackageName` after uploading your mod; if you do, Thunderstore will see it as a new, unique mod, instead of updating your old submission
-- Set `ThunderstoreTeamName` as the name of the team you use to upload the mod on Thunderstore, and don't change it
+```csharp
+using PModeration;
 
-# Additional resources
+bool isBlocked = PModerationAPI.IsPlayerBlocked(steamID);
+PModerationAPI.BlockPlayer(steamID);
+PModerationAPI.UnblockPlayer(steamID);
+var blockedList = PModerationAPI.GetBlockedSteamIDs();
 
-Alternative templates:
-- [AtlyssBIETemplate](https://github.com/RobynLlama/AtlyssBIETemplate) by [Robyn](https://github.com/RobynLlama)
-- [ATLYSS-Template](https://github.com/Nestorboy/ATLYSS-Template) by [Nestorboy](https://github.com/Nestorboy)
+PModerationAPI.OnPlayerBlocked += id => { /* react */ };
+PModerationAPI.OnPlayerUnblocked += id => { /* react */ };
+```
 
-Documentation:
-- Thunderstore package format: https://thunderstore.io/c/atlyss/create/docs/
+See `PModerationAPI.cs` for full docs.
 
-# Contributors
+### Credits
 
-- [nyxical420](https://github.com/nyxical420)
+- s0apy — Author
+- Community feedback from Atlyss Discord (Sparky, Destiny, etc.)
+
+### Notes
+- Purely client-side – no host enforcement, no mutual visibility
+- Designed to separate visual hiding from Atlyss built-in mute (as requested)
+- Tested in lobbies with oversized characters, RP titles, and chat spam
+
+### Known Limitations
+- Hiding only works when blocked player is in the same scene/lobby
+- Hard block may cause rare party desync – keep disabled by default
+- Chat censor optional (redundant with Atlyss mute in most cases)
+
+
+Enjoy your cleaner lobbies. No babysitting, just personal peace. 🐼
+```

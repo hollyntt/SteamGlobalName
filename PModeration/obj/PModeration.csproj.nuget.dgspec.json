@@ -1,33 +1,33 @@
 {
   "format": 1,
   "restore": {
-    "/run/media/soap/The Main Dr/Documents/CODE/Ours/PlayerModeration/PModeration/PModeration.csproj": {}
+    "D:\\Documents\\CODE\\Ours\\PlayerModeration\\PModeration\\PModeration.csproj": {}
   },
   "projects": {
-    "/run/media/soap/The Main Dr/Documents/CODE/Ours/PlayerModeration/PModeration/PModeration.csproj": {
-      "version": "1.1.4",
+    "D:\\Documents\\CODE\\Ours\\PlayerModeration\\PModeration\\PModeration.csproj": {
+      "version": "1.1.5",
       "restore": {
-        "projectUniqueName": "/run/media/soap/The Main Dr/Documents/CODE/Ours/PlayerModeration/PModeration/PModeration.csproj",
+        "projectUniqueName": "D:\\Documents\\CODE\\Ours\\PlayerModeration\\PModeration\\PModeration.csproj",
         "projectName": "Player Moderation",
-        "projectPath": "/run/media/soap/The Main Dr/Documents/CODE/Ours/PlayerModeration/PModeration/PModeration.csproj",
-        "packagesPath": "/home/soap/.nuget/packages/",
-        "outputPath": "/run/media/soap/The Main Dr/Documents/CODE/Ours/PlayerModeration/PModeration/obj/",
+        "projectPath": "D:\\Documents\\CODE\\Ours\\PlayerModeration\\PModeration\\PModeration.csproj",
+        "packagesPath": "C:\\Users\\Hollyn\\.nuget\\packages\\",
+        "outputPath": "D:\\Documents\\CODE\\Ours\\PlayerModeration\\PModeration\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/run/media/soap/The Main Dr/Documents/CODE/Ours/PlayerModeration/nuget.config",
-          "/home/soap/.nuget/NuGet/NuGet.Config"
+          "D:\\Documents\\CODE\\Ours\\PlayerModeration\\NuGet.Config",
+          "C:\\Users\\Hollyn\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netstandard2.1"
         ],
         "sources": {
-          "/usr/lib64/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {},
           "https://nuget.bepinex.dev/v3/index.json": {},
           "https://nuget.windows10ce.com/nuget/v3/index.json": {}
         },
         "frameworks": {
           "netstandard2.1": {
+            "framework": "netstandard2.1",
             "targetAlias": "netstandard2.1",
             "projectReferences": {}
           }
@@ -42,10 +42,11 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "netstandard2.1": {
+          "framework": "netstandard2.1",
           "targetAlias": "netstandard2.1",
           "dependencies": {
             "BepInEx.Analyzers": {
@@ -96,7 +97,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/9.0.114/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.315\\RuntimeIdentifierGraph.json"
         }
       }
     }
