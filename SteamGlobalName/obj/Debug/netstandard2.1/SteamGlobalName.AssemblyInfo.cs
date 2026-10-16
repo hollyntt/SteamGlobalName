@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("com.SteamGlobalName.sftwre")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+29aa0809d1b591fdabe6455a05ceee56ac89ff77")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f7cfb68031eab0ba85c336a00090d34a6ccc1b74")]
 [assembly: System.Reflection.AssemblyProductAttribute("SteamGlobalName")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SteamGlobalName")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,11 +1,13 @@
-﻿using BepInEx;
-using BepInEx.Bootstrap;
+using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using HarmonyLib;
+using Nessie.ATLYSS.EasySettings;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -16,39 +18,57 @@ namespace SteamGlobalName
     [BepInDependency("Nessie.ATLYSS.EasySettings", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
+        internal static Plugin? Instance;
         internal static ManualLogSource Log;
         public static ConfigEntry<bool> UseSteamName;
 
-        const string LabelName = "_text_playerGlobalName";
-        const string SelectCanvas = "_GameUI_MainMenu/_characterSelectMenu/Canvas_characterSelect";
-        const string NicknameInput = "_dolly_characterManagement/_input_@nickname";
-
         readonly Dictionary<Player, string> originals = new Dictionary<Player, string>();
         readonly HashSet<ulong> requested = new HashSet<ulong>();
+        ConfigEntry<string>? savedOriginalNickname;
+        ConfigEntry<bool>? hasSavedOriginalNickname;
 
-        float labelTimer, menuTimer;
-        bool filledInMenu;
+        float labelTimer;
 
         void Awake()
         {
+            Instance = this;
             Log = Logger;
             UseSteamName = Config.Bind("General", "Use Steam Name", true, "Set the global name from your Steam username. Off = use the local name.");
+            savedOriginalNickname = Config.Bind("Internal", "Original Nickname", "", "Nickname saved before applying the Steam name.");
+            hasSavedOriginalNickname = Config.Bind("Internal", "Has Original Nickname", false, "Whether an original nickname is available to restore.");
+            var harmony = new Harmony(ModInfo.GUID);
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
 
-            if (Chainloader.PluginInfos.ContainsKey("Nessie.ATLYSS.EasySettings"))
-                SettingsHook.Register(Config);
+            var patchedMethods = harmony.GetPatchedMethods()
+                .Select(method => $"{method.DeclaringType?.Name}.{method.Name}")
+                .ToArray();
+            Log.LogInfo($"Installed Harmony patches: {string.Join(", ", patchedMethods)}");
+            if (patchedMethods.Length == 0)
+                Log.LogError("Harmony did not install any patches");
+
+            Settings.OnInitialized.AddListener(AddSettings);
+            Settings.OnApplySettings.AddListener(() =>
+            {
+                Log.LogInfo("Settings applied; refreshing labels and queuing nickname update");
+                Config.Save();
+                RefreshLabels();
+
+                var characterSelect = Object.FindObjectOfType<CharacterSelectManager>();
+                QueueApplySteamName(characterSelect);
+            });
 
             Log.LogInfo($"{ModInfo.NAME} {ModInfo.VERSION} loaded");
         }
 
+        void AddSettings()
+        {
+            SettingsTab tab = Settings.GetOrAddCustomTab(ModInfo.NAME);
+            tab.AddHeader("Global Name");
+            tab.AddToggle(UseSteamName);
+        }
+
         void Update()
         {
-            menuTimer += Time.deltaTime;
-            if (menuTimer >= 0.25f)
-            {
-                menuTimer = 0f;
-                CheckCharacterSelect();
-            }
-
             labelTimer += Time.deltaTime;
             if (labelTimer >= 1f)
             {
@@ -57,30 +77,100 @@ namespace SteamGlobalName
             }
         }
 
-        void CheckCharacterSelect()
+        internal void ApplySteamName(CharacterSelectManager characterSelect)
         {
-            // Find only returns active objects, so null means we're not in the menu
-            var canvas = GameObject.Find(SelectCanvas);
-            if (canvas == null)
+            if (characterSelect == null)
             {
-                filledInMenu = false;
+                Log.LogWarning("Cannot apply Steam name: CharacterSelectManager was not found");
                 return;
             }
-            if (filledInMenu || !UseSteamName.Value) return;
 
-            var input = canvas.transform.Find(NicknameInput)?.GetComponent<InputField>();
+            var input = characterSelect._globalNickanmeInput;
             if (input == null)
             {
-                Log.LogWarning("Nickname input not found in character select");
-                filledInMenu = true;
+                Log.LogWarning("Character select nickname input is not available");
+                return;
+            }
+
+            if (savedOriginalNickname == null || hasSavedOriginalNickname == null)
+            {
+                Log.LogError("Original nickname configuration is not initialized");
+                return;
+            }
+
+            if (!UseSteamName.Value)
+            {
+                Log.LogInfo("Steam global nickname setting is disabled");
+                if (hasSavedOriginalNickname.Value)
+                {
+                    string original = savedOriginalNickname.Value;
+                    Log.LogInfo($"Restoring nickname to '{original}' (input currently '{input.text}')");
+                    SetInputText(input, original, activate: false);
+                    savedOriginalNickname.Value = "";
+                    hasSavedOriginalNickname.Value = false;
+                    Config.Save();
+                }
+                else
+                {
+                    Log.LogInfo("Steam name is disabled, but no original nickname is stored");
+                }
                 return;
             }
 
             string name = LocalSteamName();
-            if (string.IsNullOrWhiteSpace(name)) return;
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                Log.LogWarning("Steam persona name is unavailable; cannot set the character select nickname");
+                return;
+            }
 
-            input.text = name;
-            filledInMenu = true;
+            if (!hasSavedOriginalNickname.Value && input.text != name)
+            {
+                savedOriginalNickname.Value = input.text;
+                hasSavedOriginalNickname.Value = true;
+                Config.Save();
+                Log.LogInfo($"Saved original global nickname '{input.text}'");
+            }
+            else if (!hasSavedOriginalNickname.Value)
+            {
+                Log.LogInfo("Input already matches the Steam name; no original nickname was captured");
+            }
+
+            SetInputText(input, name, activate: true);
+            Log.LogInfo($"Set character select global nickname to '{name}'");
+        }
+
+        internal void QueueApplySteamName(CharacterSelectManager? characterSelect)
+        {
+            StartCoroutine(ApplySteamNameAfterMenuUpdate(characterSelect));
+        }
+
+        IEnumerator ApplySteamNameAfterMenuUpdate(CharacterSelectManager? characterSelect)
+        {
+            yield return null;
+            yield return new WaitForSeconds(0.25f);
+
+            if (characterSelect == null)
+            {
+                characterSelect = Object.FindObjectOfType<CharacterSelectManager>();
+                if (characterSelect == null)
+                {
+                    Log.LogWarning("CharacterSelectManager not found after waiting for the main menu to update");
+                    yield break;
+                }
+            }
+
+            ApplySteamName(characterSelect);
+        }
+
+        static void SetInputText(InputField input, string text, bool activate)
+        {
+            if (input.text == text) return;
+
+            if (activate)
+                input.ActivateInputField();
+
+            input.text = text;
         }
 
         internal void RefreshLabels()
@@ -94,14 +184,11 @@ namespace SteamGlobalName
 
         void UpdateLabel(Player p)
         {
-            var label = FindChild(p.transform, LabelName);
-            if (label == null) return;
-
             if (!UseSteamName.Value)
             {
                 if (originals.TryGetValue(p, out var old))
                 {
-                    SetText(label.gameObject, old);
+                    p._globalNickname = old;
                     originals.Remove(p);
                 }
                 return;
@@ -114,20 +201,18 @@ namespace SteamGlobalName
 
             if (!originals.ContainsKey(p))
             {
-                string current = GetText(label.gameObject);
+                string current = p._globalNickname;
                 if (string.IsNullOrEmpty(current)) return;
                 originals[p] = current;
             }
 
-            // keep the @ if the game already puts one in this label
-            string text = (originals[p].StartsWith("@") ? "@" : "") + name;
-            if (GetText(label.gameObject) != text)
-                SetText(label.gameObject, text);
+            if (p._globalNickname != name)
+                p._globalNickname = name;
         }
 
         static string LocalSteamName()
         {
-            if (!Steamworks.SteamAPI.IsSteamRunning()) return null;
+            if (!SteamManager.Initialized) return null;
             return Steamworks.SteamFriends.GetPersonaName();
         }
 
@@ -146,61 +231,59 @@ namespace SteamGlobalName
             }
             return name;
         }
-
-        // label is either TMP or UI.Text, just go through the text property
-        static string GetText(GameObject go)
-        {
-            foreach (var c in go.GetComponents<Component>())
-            {
-                var prop = c?.GetType().GetProperty("text", BindingFlags.Instance | BindingFlags.Public);
-                if (prop != null && prop.PropertyType == typeof(string)) return (string)prop.GetValue(c) ?? "";
-            }
-            return "";
-        }
-
-        static void SetText(GameObject go, string value)
-        {
-            foreach (var c in go.GetComponents<Component>())
-            {
-                var prop = c?.GetType().GetProperty("text", BindingFlags.Instance | BindingFlags.Public);
-                if (prop != null && prop.PropertyType == typeof(string) && prop.CanWrite)
-                {
-                    prop.SetValue(c, value);
-                    return;
-                }
-            }
-        }
-
-        static Transform FindChild(Transform parent, string name)
-        {
-            foreach (Transform child in parent)
-            {
-                if (child.name == name) return child;
-                var found = FindChild(child, name);
-                if (found != null) return found;
-            }
-            return null;
-        }
     }
 
-    // separate class so EasySettings types only load when it's installed
-    static class SettingsHook
+    [HarmonyPatch]
+    public static class GameStatePatches
     {
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void Register(ConfigFile config)
+        [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Set_MenuCondition))]
+        [HarmonyPostfix]
+        public static void OnSetMenuCondition(MainMenuManager __instance)
         {
-            Nessie.ATLYSS.EasySettings.Settings.OnInitialized.AddListener(() =>
-            {
-                var tab = Nessie.ATLYSS.EasySettings.Settings.GetOrAddCustomTab(ModInfo.NAME);
-                tab.AddHeader("Global Name");
-                tab.AddToggle(Plugin.UseSteamName);
-            });
+            if (__instance._mainMenuCondition != MainMenuCondition.CharacterSelect)
+                return;
 
-            Nessie.ATLYSS.EasySettings.Settings.OnApplySettings.AddListener(() =>
+            Plugin.Log.LogInfo("Main menu entered character select");
+            var characterSelect = __instance._characterSelectManager;
+            if (Plugin.Instance == null)
             {
-                config.Save();
-                Object.FindObjectOfType<Plugin>()?.RefreshLabels();
-            });
+                Plugin.Log.LogWarning("Plugin.Instance is null; cannot apply Steam name");
+                return;
+            }
+
+            if (characterSelect == null)
+                Plugin.Log.LogWarning("MainMenuManager._characterSelectManager is null; will search after a delay");
+
+            Plugin.Instance.QueueApplySteamName(characterSelect);
+        }
+
+        [HarmonyPatch(typeof(MainMenuManager), "Load_HostSettings")]
+        [HarmonyPostfix]
+        public static void OnLoadHostSettings(MainMenuManager __instance)
+        {
+            if (Plugin.Instance == null)
+            {
+                Plugin.Log.LogWarning("Plugin.Instance is null after host settings loaded");
+                return;
+            }
+
+            var characterSelect = __instance._characterSelectManager;
+            Plugin.Instance.QueueApplySteamName(characterSelect);
+        }
+
+        [HarmonyPatch(typeof(ProfileDataSender), "OnSend_CharacterFileData")]
+        [HarmonyPostfix]
+        public static void OnSendCharacterFileData()
+        {
+            var characterSelect = Object.FindObjectOfType<CharacterSelectManager>();
+            if (Plugin.Instance == null)
+            {
+                Plugin.Log.LogWarning("Plugin.Instance is null after character file data was sent");
+                return;
+            }
+
+            Plugin.Instance.QueueApplySteamName(characterSelect);
         }
     }
+
 }
