@@ -1,84 +1,38 @@
-# PModeration
+# SteamGlobalName
 
-**Personal client-side player hiding & blocking for Atlyss**  
-Hide annoying players (oversized models, distracting RP titles, floating names, audio spam) without muting chat or affecting anyone else.
+SteamGlobalName automatically uses your Steam username as your ATLYSS global name. When enabled, it also updates the global-name labels shown for other players to use their Steam usernames.
 
 [**Join the Discord Community**](https://discord.gg/ePhX4Fb2we)
 
-### Features
+## Features
 
-- **Silent local hiding** — Completely removes a player's visuals, nameplate (@global + RPNames title), model, attached effects, and audio locally.  
-- **SteamID-based** — Blocks persist across character swaps, logouts, and re-joins.  
-- **Separate from mute** — Hide visuals while still chatting (perfect for oversized/obstructing characters you still want to talk to).  
-- **Optional chat censor** — Replace blocked players' messages with "------" (or custom text) if you want full silence.  
-- **Easy controls** — In-game commands: `/block <name>`, `/unblock <name-or-ID>`, `/blocklist`, `/blockexport`, `/blockimport`.  
-- **Configurable** — Toggle hard block (full GameObject disable) vs soft block (safer for parties), debug mode, and more via EasySettings UI.  
-- **Public API** — Other mods can check/add/remove blocks or listen to events (`PModeration.PModerationAPI`).  
+- **Automatic character name** — Fills the nickname field with your Steam username in the character select menu.
+- **Steam names in-game** — Replaces player global-name labels with their Steam usernames.
+- **Configurable** — Turn the feature on or off in the mod settings or configuration file.
+- **Client-side** — Changes are made locally; the mod does not change server settings.
 
-Purely **client-side** — no host involvement, no mutual visibility, no drama. Just personal boundary control.
+## Installation
 
-### Installation
+Install with a compatible mod manager or manually. The mod requires:
 
-1. Install via Thunderstore Mod Manager or manually.  
-2. Requires:  
-   - BepInEx  
-   - Nessie.ATLYSS.EasySettings  
-   - Soggy_Pancake.AtlyssCommandLib  
-   - CodeTalker  
-3. Launch game → configure via Mod Settings menu or edit `BepInEx/config/PModeration.cfg`
+- BepInEx 5
+- ATLYSS
+- [Nessie.ATLYSS.EasySettings](https://thunderstore.io/c/atlyss/p/Nessie/EasySettings/) (optional; enables the in-game settings toggle)
 
-### Commands (all client-side)
+## Configuration
 
-- `/block <name>` — Hide a player  
-- `/unblock <name-or-SteamID>` — Unhide  
-- `/blocklist` — Show blocked IDs  
-- `/blockexport` — Save blocklist to file  
-- `/blockimport <path>` — Load blocklist from file  
-- `/blockhelp` — Shows command lists
-- `/hideglobal <name>` — hides only the @GlobalName text for that player (model, RP title, location, etc. stay visible)
-- `/unhideglobal <name-or-ID>` — shows the @GlobalName again
+The **Use Steam Name** setting is available in the mod's EasySettings tab when EasySettings is installed. It can also be changed in `BepInEx/config/com.SteamGlobalName.sftwre.cfg`.
 
-### Configuration (via Mod Settings or .cfg)
+| Setting | Default | Description |
+| --- | --- | --- |
+| `Use Steam Name` | `true` | Use Steam usernames for the character nickname field and in-game global-name labels. When disabled, the mod restores the original label text it recorded. |
 
-- **Enabled** — Master switch (default: true)  
-- **Hard Block (Advanced)** — Disable entire GameObject (default: false – soft block recommended for party stability)  
-- **Censor Chat** — Replace blocked messages (default: false – Atlyss mute already exists)  
-- **Replacement Text** — What blocked chat shows (default: "[BLOCKED]")  
-- **Debug Mode** — Log actions (default: false)
+## Notes
 
-### Developer API
+- Steam must be running for Steam usernames to be available.
+- Player Steam names may not appear until Steam provides the player's persona information.
+- EasySettings is an optional dependency; without it, configure the setting in the `.cfg` file.
 
-Other mods can reference `PModeration.PModerationAPI` for integration:
-
-```csharp
-using PModeration;
-
-bool isBlocked = PModerationAPI.IsPlayerBlocked(steamID);
-PModerationAPI.BlockPlayer(steamID);
-PModerationAPI.UnblockPlayer(steamID);
-var blockedList = PModerationAPI.GetBlockedSteamIDs();
-
-PModerationAPI.OnPlayerBlocked += id => { /* react */ };
-PModerationAPI.OnPlayerUnblocked += id => { /* react */ };
-```
-
-See `PModerationAPI.cs` for full docs.
-
-### Credits
+## Credits
 
 - s0apy — Author
-- Community feedback from Atlyss Discord (Sparky, Destiny, etc.)
-
-### Notes
-- Purely client-side – no host enforcement, no mutual visibility
-- Designed to separate visual hiding from Atlyss built-in mute (as requested)
-- Tested in lobbies with oversized characters, RP titles, and chat spam
-
-### Known Limitations
-- Hiding only works when blocked player is in the same scene/lobby
-- Hard block may cause rare party desync – keep disabled by default
-- Chat censor optional (redundant with Atlyss mute in most cases)
-
-
-Enjoy your cleaner lobbies. No babysitting, just personal peace. 🐼
-```
