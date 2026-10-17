@@ -10,32 +10,7 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="223b941e-b320-434a-8169-9043f2cf2994" name="Changes" comment="Binary Release">
-      <change afterPath="$PROJECT_DIR$/SteamGlobalName/obj/rider.project.model.nuget.info" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.PModeration/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.PModeration/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.SteamGlobalName/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.SteamGlobalName/.idea/indexLayout.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.SteamGlobalName/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.TemplateMod/.idea/workspace.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/indexLayout.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/.idea/.idea.AutoMod.dir/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/.idea/.idea.AutoMod.dir/.idea/indexLayout.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/.idea/.idea.AutoMod.dir/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/Main.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SteamGlobalName/Main.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/_ThunderstoreBuild/s0apy-SteamGlobalName-1.0.0.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/bin/Debug/netstandard2.1/SteamGlobalName.dll" beforeDir="false" afterPath="$PROJECT_DIR$/SteamGlobalName/bin/Debug/netstandard2.1/SteamGlobalName.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/bin/Debug/netstandard2.1/_ThunderstoreBuild/SteamGlobalName.dll" beforeDir="false" afterPath="$PROJECT_DIR$/SteamGlobalName/bin/Debug/netstandard2.1/_ThunderstoreBuild/SteamGlobalName.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/obj/Debug/netstandard2.1/SteamGlobalName.AssemblyInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SteamGlobalName/obj/Debug/netstandard2.1/SteamGlobalName.AssemblyInfo.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/obj/Debug/netstandard2.1/SteamGlobalName.AssemblyInfoInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/SteamGlobalName/obj/Debug/netstandard2.1/SteamGlobalName.AssemblyInfoInputs.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/obj/Debug/netstandard2.1/SteamGlobalName.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/SteamGlobalName/obj/Debug/netstandard2.1/SteamGlobalName.csproj.AssemblyReference.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/obj/Debug/netstandard2.1/SteamGlobalName.dll" beforeDir="false" afterPath="$PROJECT_DIR$/SteamGlobalName/obj/Debug/netstandard2.1/SteamGlobalName.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/obj/Debug/netstandard2.1/SteamGlobalName.sourcelink.json" beforeDir="false" afterPath="$PROJECT_DIR$/SteamGlobalName/obj/Debug/netstandard2.1/SteamGlobalName.sourcelink.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/obj/SteamGlobalName.csproj.nuget.dgspec.json" beforeDir="false" afterPath="$PROJECT_DIR$/SteamGlobalName/obj/SteamGlobalName.csproj.nuget.dgspec.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/obj/project.nuget.cache" beforeDir="false" afterPath="$PROJECT_DIR$/SteamGlobalName/obj/project.nuget.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SteamGlobalName/obj/rider.project.restore.info" beforeDir="false" afterPath="$PROJECT_DIR$/SteamGlobalName/obj/rider.project.restore.info" afterDir="false" />
-    </list>
+    <list default="true" id="223b941e-b320-434a-8169-9043f2cf2994" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -82,7 +57,7 @@
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/run/media/hollyn/The Main Dr/Documents/CODE/Ours/VCLYSS",
+    "last_opened_file_path": "/run/media/hollyn/The Main Dr/Documents/CODE/Ours/RoleplayTitles",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -122,7 +97,8 @@
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Release" />
-    <option name="LAST_COMMIT_MESSAGE" value="Release" />
+    <MESSAGE value="Binary Release" />
+    <option name="LAST_COMMIT_MESSAGE" value="Binary Release" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

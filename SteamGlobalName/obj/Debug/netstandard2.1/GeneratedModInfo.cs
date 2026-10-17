@@ -6,6 +6,6 @@ namespace SteamGlobalName
     {
         public const string GUID = "com.SteamGlobalName.sftwre";
         public const string NAME = "SteamGlobalName";
-        public const string VERSION = "1.0.0";
+        public const string VERSION = "1.0.1";
     }
 }

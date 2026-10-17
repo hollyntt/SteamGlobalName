@@ -7,7 +7,7 @@
   "targets": {
     ".NETStandard,Version=v2.1": {},
     ".NETStandard,Version=v2.1/": {
-      "SteamGlobalName/1.0.0": {
+      "SteamGlobalName/1.0.1": {
         "dependencies": {
           "BepInEx.AssemblyPublicizer.MSBuild": "0.4.2",
           "BepInEx.Core": "5.4.21",
@@ -494,7 +494,7 @@
     }
   },
   "libraries": {
-    "SteamGlobalName/1.0.0": {
+    "SteamGlobalName/1.0.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

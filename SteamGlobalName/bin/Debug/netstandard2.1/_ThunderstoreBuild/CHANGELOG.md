@@ -5,6 +5,12 @@ All notable changes to SteamGlobalName will be documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-10-16 (Deprecation)
+
+### Notice
+
+- Its now intergrated with [RPNames](https://thunderstore.io/c/atlyss/p/s0apy/RPNames/) please use that now and uninstall this little tech demo that came off my head
+
 ## [1.0.0] - 2026-10-16
 
 ### Added

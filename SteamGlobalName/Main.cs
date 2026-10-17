@@ -18,6 +18,8 @@ namespace SteamGlobalName
     [BepInDependency("Nessie.ATLYSS.EasySettings", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
+        static readonly DateTime DeprecationDateUtc = new DateTime(2026, 10, 31, 0, 0, 0, DateTimeKind.Utc);
+
         internal static Plugin? Instance;
         internal static ManualLogSource Log;
         public static ConfigEntry<bool> UseSteamName;
@@ -26,6 +28,8 @@ namespace SteamGlobalName
         readonly HashSet<ulong> requested = new HashSet<ulong>();
         ConfigEntry<string>? savedOriginalNickname;
         ConfigEntry<bool>? hasSavedOriginalNickname;
+        Harmony? harmony;
+        bool isActive = true;
 
         float labelTimer;
 
@@ -33,10 +37,21 @@ namespace SteamGlobalName
         {
             Instance = this;
             Log = Logger;
+
+            if (DateTime.UtcNow >= DeprecationDateUtc)
+            {
+                DisableForDeprecation();
+                return;
+            }
+
+            Log.LogWarning(
+                $"{ModInfo.NAME} will disable itself on {DeprecationDateUtc:yyyy-MM-dd} UTC. " +
+                "Uninstall it and use RPNames instead: https://thunderstore.io/c/atlyss/p/s0apy/RPNames/");
+
             UseSteamName = Config.Bind("General", "Use Steam Name", true, "Set the global name from your Steam username. Off = use the local name.");
             savedOriginalNickname = Config.Bind("Internal", "Original Nickname", "", "Nickname saved before applying the Steam name.");
             hasSavedOriginalNickname = Config.Bind("Internal", "Has Original Nickname", false, "Whether an original nickname is available to restore.");
-            var harmony = new Harmony(ModInfo.GUID);
+            harmony = new Harmony(ModInfo.GUID);
             harmony.PatchAll(Assembly.GetExecutingAssembly());
 
             var patchedMethods = harmony.GetPatchedMethods()
@@ -49,6 +64,8 @@ namespace SteamGlobalName
             Settings.OnInitialized.AddListener(AddSettings);
             Settings.OnApplySettings.AddListener(() =>
             {
+                if (!isActive) return;
+
                 Log.LogInfo("Settings applied; refreshing labels and queuing nickname update");
                 Config.Save();
                 RefreshLabels();
@@ -62,6 +79,8 @@ namespace SteamGlobalName
 
         void AddSettings()
         {
+            if (!isActive) return;
+
             SettingsTab tab = Settings.GetOrAddCustomTab(ModInfo.NAME);
             tab.AddHeader("Global Name");
             tab.AddToggle(UseSteamName);
@@ -69,6 +88,14 @@ namespace SteamGlobalName
 
         void Update()
         {
+            if (!isActive) return;
+
+            if (DateTime.UtcNow >= DeprecationDateUtc)
+            {
+                DisableForDeprecation();
+                return;
+            }
+
             labelTimer += Time.deltaTime;
             if (labelTimer >= 1f)
             {
@@ -79,6 +106,8 @@ namespace SteamGlobalName
 
         internal void ApplySteamName(CharacterSelectManager characterSelect)
         {
+            if (!isActive) return;
+
             if (characterSelect == null)
             {
                 Log.LogWarning("Cannot apply Steam name: CharacterSelectManager was not found");
@@ -142,6 +171,8 @@ namespace SteamGlobalName
 
         internal void QueueApplySteamName(CharacterSelectManager? characterSelect)
         {
+            if (!isActive) return;
+
             StartCoroutine(ApplySteamNameAfterMenuUpdate(characterSelect));
         }
 
@@ -149,6 +180,9 @@ namespace SteamGlobalName
         {
             yield return null;
             yield return new WaitForSeconds(0.25f);
+
+            if (!isActive)
+                yield break;
 
             if (characterSelect == null)
             {
@@ -161,6 +195,38 @@ namespace SteamGlobalName
             }
 
             ApplySteamName(characterSelect);
+        }
+
+        void DisableForDeprecation()
+        {
+            if (!isActive) return;
+
+            isActive = false;
+            harmony?.UnpatchSelf();
+
+            foreach (var original in originals)
+                if (original.Key != null)
+                    original.Key._globalNickname = original.Value;
+            originals.Clear();
+
+            if (savedOriginalNickname != null && hasSavedOriginalNickname != null && hasSavedOriginalNickname.Value)
+            {
+                var characterSelect = Object.FindObjectOfType<CharacterSelectManager>();
+                var input = characterSelect == null ? null : characterSelect._globalNickanmeInput;
+                if (input != null)
+                {
+                    SetInputText(input, savedOriginalNickname.Value, activate: false);
+                    savedOriginalNickname.Value = "";
+                    hasSavedOriginalNickname.Value = false;
+                    Config.Save();
+                }
+            }
+
+            Log.LogWarning(
+                $"{ModInfo.NAME} reached its deprecation date ({DeprecationDateUtc:yyyy-MM-dd} UTC). " +
+                $"Harmony patches have been removed and this mod is now disabled. Uninstall it and use RPNames instead: " +
+                "https://thunderstore.io/c/atlyss/p/s0apy/RPNames/");
+            enabled = false;
         }
 
         static void SetInputText(InputField input, string text, bool activate)

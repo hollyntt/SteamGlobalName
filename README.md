@@ -2,6 +2,8 @@
 
 SteamGlobalName automatically uses your Steam username as your ATLYSS global name. When enabled, it also updates the global-name labels shown for other players to use their Steam usernames.
 
+> **Deprecation notice:** SteamGlobalNickname is deprecated and will disable itself on October 31, 2026 (UTC), removing its Harmony patches. Uninstall this mod and use [RPNames](https://thunderstore.io/c/atlyss/p/s0apy/RPNames/) instead.
+
 [**Join the Discord Community**](https://discord.gg/ePhX4Fb2we)
 
 ## Features
